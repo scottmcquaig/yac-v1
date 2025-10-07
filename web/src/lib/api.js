@@ -1,6 +1,7 @@
 import { auth } from './firebase';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+// Use relative URL in production (same origin), full URL in dev
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 /**
  * Get the current league ID from localStorage
