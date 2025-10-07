@@ -4,14 +4,20 @@ let firebaseApp;
 
 export const initializeFirebase = () => {
   if (!firebaseApp) {
-    firebaseApp = admin.initializeApp({
-      credential: admin.credential.cert({
-        projectId: process.env.FIREBASE_PROJECT_ID,
-        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-        privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-      }),
-    });
-    console.log('Firebase Admin initialized');
+    try {
+      firebaseApp = admin.initializeApp({
+        credential: admin.credential.cert({
+          projectId: process.env.FIREBASE_PROJECT_ID,
+          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+          privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+        }),
+      });
+      console.log('Firebase Admin initialized');
+    } catch (error) {
+      console.error('Firebase initialization failed:', error.message);
+      console.warn('Running without Firebase - auth will not work');
+      // Don't crash the app, just disable Firebase features
+    }
   }
   return firebaseApp;
 };
