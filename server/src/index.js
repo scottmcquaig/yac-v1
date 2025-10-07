@@ -23,12 +23,18 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Configure CORS
+app.use(express.json());
+
+// Serve static frontend files BEFORE CORS middleware
+const publicPath = path.join(__dirname, '..', 'public');
+app.use(express.static(publicPath));
+
+// Configure CORS (only applies to routes below)
 const allowedOrigins = process.env.ALLOWED_ORIGIN
   ? process.env.ALLOWED_ORIGIN.split(',')
   : ['http://localhost:5173', 'http://localhost:3000'];
 
-app.use(cors({
+app.use('/api', cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (mobile apps, Postman, etc.)
     if (!origin) return callback(null, true);
@@ -41,8 +47,6 @@ app.use(cors({
   },
   credentials: true,
 }));
-
-app.use(express.json());
 
 // Initialize Firebase
 initializeFirebase();
@@ -84,10 +88,6 @@ app.use('/api/leagues/:leagueId/invites', invitesRouter);
 // Global invite redemption
 app.use('/api/invites', invitesRouter);
 
-// Serve static frontend files in production
-const publicPath = path.join(__dirname, '..', 'public');
-app.use(express.static(publicPath));
-
 // SPA fallback - serve index.html for all non-API routes
 app.get('*', (req, res) => {
   // Only serve index.html for non-API routes
@@ -106,5 +106,5 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log(`CORS enabled for: ${allowedOrigins.join(', ')}`);
+  console.log(`CORS enabled for /api routes: ${allowedOrigins.join(', ')}`);
 });
